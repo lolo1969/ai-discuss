@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI-Discuss – KI-Dialog</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div id="app">
+        <!-- ============ SETUP-PANEL ============ -->
+        <section id="setup-panel" class="panel">
+            <h1>🤖 AI-Discuss</h1>
+            <p class="subtitle">Zwei KI-Modelle. Ein Thema. Ein Dialog.</p>
+
+            <div class="form-group">
+                <label for="topic">Diskussionsthema</label>
+                <input
+                    id="topic"
+                    type="text"
+                    placeholder="z. B. Klimawandel, Künstliche Intelligenz, Bildungssysteme…"
+                />
+            </div>
+
+            <div class="participants-grid">
+                <!-- Teilnehmer A -->
+                <fieldset class="participant-card participant-a">
+                    <legend>Teilnehmer A</legend>
+                    <div class="form-group">
+                        <label for="prov-a">Provider</label>
+                        <select id="prov-a">
+                            <option value="openai" selected>OpenAI (GPT)</option>
+                            <option value="anthropic">Anthropic (Claude)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="role-a">Rolle / Perspektive (optional)</label>
+                        <input id="role-a" type="text" placeholder="z. B. Optimist, Kritiker – leer lassen für freie Diskussion" />
+                    </div>
+                    <div class="form-group">
+                        <label for="sysprompt-a">System-Prompt (optional)</label>
+                        <textarea id="sysprompt-a" rows="2" placeholder="Zusätzliche Anweisungen…"></textarea>
+                    </div>
+                </fieldset>
+
+                <!-- Teilnehmer B -->
+                <fieldset class="participant-card participant-b">
+                    <legend>Teilnehmer B</legend>
+                    <div class="form-group">
+                        <label for="prov-b">Provider</label>
+                        <select id="prov-b">
+                            <option value="openai">OpenAI (GPT)</option>
+                            <option value="anthropic" selected>Anthropic (Claude)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="role-b">Rolle / Perspektive (optional)</label>
+                        <input id="role-b" type="text" placeholder="z. B. Skeptiker, Befürworter – leer lassen für freie Diskussion" />
+                    </div>
+                    <div class="form-group">
+                        <label for="sysprompt-b">System-Prompt (optional)</label>
+                        <textarea id="sysprompt-b" rows="2" placeholder="Zusätzliche Anweisungen…"></textarea>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="max-turns">Anzahl Züge (gesamt)</label>
+                    <input id="max-turns" type="number" min="2" max="50" value="6" />
+                </div>
+                <div class="form-group" style="flex:2">
+                    <label for="rules">Zusätzliche Regeln (optional)</label>
+                    <input id="rules" type="text" placeholder="z. B. Belege mit Quellen, bleibe sachlich…" />
+                </div>
+            </div>
+
+            <button id="btn-start" class="btn-primary">Dialog starten ▶</button>
+        </section>
+
+        <!-- ============ DIALOG-PANEL ============ -->
+        <section id="dialog-panel" class="panel hidden">
+            <header class="dialog-header">
+                <h2 id="dialog-topic"></h2>
+                <div class="dialog-controls">
+                    <span id="turn-counter" class="badge">Turn 0/0</span>
+                    <button id="btn-stop" class="btn-secondary" title="Dialog abbrechen">⏹ Stopp</button>
+                    <button id="btn-new" class="btn-secondary" title="Neuen Dialog starten">🔄 Neu</button>
+                </div>
+            </header>
+
+            <div id="dialog-messages" class="messages-container"></div>
+
+            <!-- Nutzer-Eingriff -->
+            <div id="intervention-bar" class="intervention-bar">
+                <input
+                    id="intervention-input"
+                    type="text"
+                    placeholder="Als Moderator eingreifen…"
+                />
+                <button id="btn-intervene" class="btn-primary btn-small">Senden</button>
+            </div>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
