@@ -45,6 +45,12 @@ class DialogConfig(BaseModel):
     participant_a: Participant
     participant_b: Participant
     max_turns: int = Field(6, ge=2, le=50, description="Total number of turns (A+B)")
+    token_delay_ms: int = Field(
+        30,
+        ge=0,
+        le=200,
+        description="Delay in milliseconds between each streamed token (0 = real-time)",
+    )
     rules: str = Field(
         "",
         description="Optional additional rules for the dialog",

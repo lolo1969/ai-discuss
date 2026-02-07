@@ -145,6 +145,19 @@ select:focus {
     flex: 1;
 }
 
+input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent-a);
+    cursor: pointer;
+}
+
+.range-hint {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+}
+
 .btn-primary {
     width: 100%;
     padding: 0.75rem;

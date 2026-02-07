@@ -22,6 +22,13 @@ let maxTurns          = 6;
 let currentMsgEl      = null;
 let currentContentEl  = null;
 
+// Slider live update
+const tokenDelaySlider = document.getElementById("token-delay");
+const delayValueLabel  = document.getElementById("delay-value");
+tokenDelaySlider.addEventListener("input", () => {
+    delayValueLabel.textContent = tokenDelaySlider.value;
+});
+
 // ---------------------------------------------------------------------------
 // Start dialog
 // ---------------------------------------------------------------------------
@@ -232,6 +239,7 @@ function buildConfig() {
             system_prompt: document.getElementById("sysprompt-b").value.trim(),
         },
         max_turns: parseInt(document.getElementById("max-turns").value, 10) || 6,
+        token_delay_ms: parseInt(document.getElementById("token-delay").value, 10) || 30,
         rules: document.getElementById("rules").value.trim(),
     };
 }

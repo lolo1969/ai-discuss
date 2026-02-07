@@ -74,6 +74,8 @@ class DialogEngine:
                 "role_label": participant.role_label,
             })
 
+            token_delay = self.state.config.token_delay_ms / 1000.0
+
             async for token in stream_response(
                 provider=participant.provider,
                 system_prompt=participant.system_prompt,
@@ -85,6 +87,8 @@ class DialogEngine:
                     "turn": self.state.current_turn,
                     "token": token,
                 })
+                if token_delay > 0:
+                    await asyncio.sleep(token_delay)
 
             full_content = "".join(content_parts)
             self.state.messages.append(
