@@ -22,6 +22,10 @@ class DialogEngine:
     def __init__(self, config: DialogConfig) -> None:
         self.state = DialogState(config=config)
         self._participants = [config.participant_a, config.participant_b]
+        # Pause/resume control
+        self._resume_event = asyncio.Event()
+        self._resume_event.set()  # starts unpaused
+        self._paused = False
         # Set default labels if no role is defined
         provider_labels = {"openai": "GPT", "anthropic": "Claude"}
         for p in self._participants:
@@ -81,6 +85,9 @@ class DialogEngine:
                 system_prompt=participant.system_prompt,
                 history=self.state.messages,
             ):
+                # Wait here if paused
+                await self._resume_event.wait()
+
                 content_parts.append(token)
                 # SSE: Token stream
                 yield self._sse_event("token", {
@@ -109,11 +116,26 @@ class DialogEngine:
                 "finished": self.finished,
             })
 
-            # Short pause between turns
+            # Wait here if paused between turns
+            await self._resume_event.wait()
             await asyncio.sleep(0.3)
 
         # SSE: Dialog complete
         yield self._sse_event("dialog_end", {"total_turns": self.state.current_turn})
+
+    def pause(self) -> None:
+        """Pause the dialog stream."""
+        self._paused = True
+        self._resume_event.clear()
+
+    def resume(self) -> None:
+        """Resume the dialog stream."""
+        self._paused = False
+        self._resume_event.set()
+
+    @property
+    def is_paused(self) -> bool:
+        return self._paused
 
     async def inject_user_message(self, message: str) -> None:
         """User intervention: message is added to the history."""

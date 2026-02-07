@@ -11,6 +11,7 @@ const dialogTopic     = document.getElementById("dialog-topic");
 const turnCounter     = document.getElementById("turn-counter");
 const messagesEl      = document.getElementById("dialog-messages");
 const btnStart        = document.getElementById("btn-start");
+const btnPause        = document.getElementById("btn-pause");
 const btnStop         = document.getElementById("btn-stop");
 const btnNew          = document.getElementById("btn-new");
 const btnIntervene    = document.getElementById("btn-intervene");
@@ -21,6 +22,7 @@ let eventSource       = null;
 let maxTurns          = 6;
 let currentMsgEl      = null;
 let currentContentEl  = null;
+let isPaused          = false;
 
 // Slider live update
 const tokenDelaySlider = document.getElementById("token-delay");
@@ -194,11 +196,33 @@ async function sendIntervention() {
 // Controls
 // ---------------------------------------------------------------------------
 
+btnPause.addEventListener("click", async () => {
+    if (!currentSessionId) return;
+    try {
+        const res = await fetch(`${API_BASE}/api/dialog/${currentSessionId}/pause`, { method: "POST" });
+        const data = await res.json();
+        isPaused = data.paused;
+        btnPause.textContent = isPaused ? "▶ Resume" : "⏸ Pause";
+        btnPause.title = isPaused ? "Resume dialog" : "Pause dialog";
+
+        // Show status in chat
+        const statusEl = document.createElement("div");
+        statusEl.className = "status-message";
+        statusEl.textContent = isPaused ? "⏸ Dialog paused" : "▶ Dialog resumed";
+        messagesEl.appendChild(statusEl);
+        scrollToBottom();
+    } catch (e) {
+        console.error("Pause toggle failed:", e);
+    }
+});
+
 btnStop.addEventListener("click", () => {
     closeStream();
     if (currentSessionId) {
         fetch(`${API_BASE}/api/dialog/${currentSessionId}`, { method: "DELETE" });
     }
+    isPaused = false;
+    btnPause.textContent = "⏸ Pause";
     const statusEl = document.createElement("div");
     statusEl.className = "status-message";
     statusEl.textContent = "⏹ Dialog stopped by user";
@@ -211,6 +235,8 @@ btnNew.addEventListener("click", () => {
         fetch(`${API_BASE}/api/dialog/${currentSessionId}`, { method: "DELETE" });
         currentSessionId = null;
     }
+    isPaused = false;
+    btnPause.textContent = "⏸ Pause";
     dialogPanel.classList.add("hidden");
     setupPanel.classList.remove("hidden");
 });

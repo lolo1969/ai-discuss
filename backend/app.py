@@ -70,6 +70,19 @@ async def intervene(session_id: str, req: InterventionRequest):
     return {"status": "ok", "message": "Message was injected."}
 
 
+@app.post("/api/dialog/{session_id}/pause")
+async def toggle_pause(session_id: str):
+    """Toggle pause/resume for the dialog."""
+    engine = _sessions.get(session_id)
+    if not engine:
+        raise HTTPException(404, "Session not found")
+    if engine.is_paused:
+        engine.resume()
+    else:
+        engine.pause()
+    return {"paused": engine.is_paused}
+
+
 @app.get("/api/dialog/{session_id}/state")
 async def get_state(session_id: str):
     """Return the current dialog state."""
