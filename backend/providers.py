@@ -1,4 +1,4 @@
-"""Abstraktion der KI-Provider (OpenAI + Anthropic)."""
+"""AI provider abstraction (OpenAI + Anthropic)."""
 
 from __future__ import annotations
 
@@ -22,12 +22,12 @@ def _build_openai_messages(
     history: list[DialogMessage],
     current_provider: Provider,
 ) -> list[dict]:
-    """Baut die OpenAI-kompatible Nachrichtenliste auf."""
+    """Build the OpenAI-compatible message list."""
     msgs: list[dict] = []
     if system_prompt:
         msgs.append({"role": Role.SYSTEM.value, "content": system_prompt})
     for m in history:
-        # Eigene Nachrichten = assistant, fremde = user
+        # Own messages = assistant, other's = user
         role = Role.ASSISTANT.value if m.provider == current_provider else Role.USER.value
         msgs.append({"role": role, "content": f"[{m.role_label}]: {m.content}"})
     return msgs
@@ -37,20 +37,20 @@ def _build_anthropic_messages(
     history: list[DialogMessage],
     current_provider: Provider,
 ) -> list[dict]:
-    """Baut die Anthropic-kompatible Nachrichtenliste auf."""
+    """Build the Anthropic-compatible message list."""
     msgs: list[dict] = []
     for m in history:
         role = "assistant" if m.provider == current_provider else "user"
         msgs.append({"role": role, "content": f"[{m.role_label}]: {m.content}"})
-    # Anthropic erwartet, dass die erste Nachricht role=user hat.
-    # Falls die Liste leer ist oder mit assistant beginnt, Platzhalter einfügen.
+    # Anthropic requires the first message to have role=user.
+    # If the list is empty or starts with assistant, insert a placeholder.
     if not msgs or msgs[0]["role"] == "assistant":
-        msgs.insert(0, {"role": "user", "content": "(Beginn des Dialogs)"})
+        msgs.insert(0, {"role": "user", "content": "(Start of dialog)"})
     return msgs
 
 
 # ---------------------------------------------------------------------------
-# Streaming-Generatoren
+# Streaming generators
 # ---------------------------------------------------------------------------
 
 async def stream_openai(
@@ -58,10 +58,10 @@ async def stream_openai(
     history: list[DialogMessage],
     current_provider: Provider,
 ) -> AsyncIterator[str]:
-    """Streamt Tokens von OpenAI."""
+    """Stream tokens from OpenAI."""
     api_key = get_openai_api_key()
     if not api_key:
-        raise ValueError("OPENAI_API_KEY ist nicht gesetzt. Bitte in .env eintragen.")
+        raise ValueError("OPENAI_API_KEY is not set. Please add it to .env.")
     client = openai.AsyncOpenAI(api_key=api_key)
     messages = _build_openai_messages(system_prompt, history, current_provider)
     stream = await client.chat.completions.create(
@@ -81,16 +81,16 @@ async def stream_anthropic(
     history: list[DialogMessage],
     current_provider: Provider,
 ) -> AsyncIterator[str]:
-    """Streamt Tokens von Anthropic."""
+    """Stream tokens from Anthropic."""
     api_key = get_anthropic_api_key()
     if not api_key:
-        raise ValueError("ANTHROPIC_API_KEY ist nicht gesetzt. Bitte in .env eintragen.")
+        raise ValueError("ANTHROPIC_API_KEY is not set. Please add it to .env.")
     client = anthropic.AsyncAnthropic(api_key=api_key)
     messages = _build_anthropic_messages(history, current_provider)
     async with client.messages.stream(
         model=ANTHROPIC_MODEL,
         max_tokens=MAX_TOKENS,
-        system=system_prompt or "Du bist ein hilfreicher Gesprächspartner.",
+        system=system_prompt or "You are a helpful conversation partner.",
         messages=messages,
     ) as stream:
         async for text in stream.text_stream:
@@ -102,7 +102,7 @@ async def stream_response(
     system_prompt: str,
     history: list[DialogMessage],
 ) -> AsyncIterator[str]:
-    """Universeller Dispatcher."""
+    """Universal dispatcher."""
     if provider == Provider.OPENAI:
         async for token in stream_openai(system_prompt, history, provider):
             yield token
@@ -110,4 +110,4 @@ async def stream_response(
         async for token in stream_anthropic(system_prompt, history, provider):
             yield token
     else:
-        raise ValueError(f"Unbekannter Provider: {provider}")
+        raise ValueError(f"Unknown provider: {provider}")

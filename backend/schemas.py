@@ -1,4 +1,4 @@
-"""Pydantic-Schemas für Request / Response und interne Datenstrukturen."""
+"""Pydantic schemas for request/response and internal data structures."""
 
 from __future__ import annotations
 
@@ -20,34 +20,34 @@ class Role(str, Enum):
 
 
 class DialogMessage(BaseModel):
-    """Ein einzelner Beitrag im Dialog."""
+    """A single message in the dialog."""
     provider: Provider
-    role_label: str  # z. B. "Optimist", "Skeptiker"
+    role_label: str  # e.g. "Optimist", "Skeptic"
     content: str
 
 
 class Participant(BaseModel):
-    """Beschreibung eines Teilnehmers."""
+    """Description of a participant."""
     provider: Provider
     role_label: str = Field(
         "",
-        description="Optionale Perspektive / Rolle, z. B. 'Optimist'. Leer = freie Diskussion.",
+        description="Optional perspective/role, e.g. 'Optimist'. Empty = open discussion.",
     )
     system_prompt: str = Field(
         "",
-        description="Optionaler System-Prompt, der die Persönlichkeit definiert.",
+        description="Optional system prompt that defines the personality.",
     )
 
 
 class DialogConfig(BaseModel):
-    """Konfiguration, die der Nutzer zu Beginn festlegt."""
-    topic: str = Field(..., description="Das Diskussionsthema")
+    """Configuration set by the user at the start."""
+    topic: str = Field(..., description="The discussion topic")
     participant_a: Participant
     participant_b: Participant
-    max_turns: int = Field(6, ge=2, le=50, description="Anzahl Gesamtzüge (A+B)")
+    max_turns: int = Field(6, ge=2, le=50, description="Total number of turns (A+B)")
     rules: str = Field(
         "",
-        description="Optionale Zusatzregeln für den Dialog",
+        description="Optional additional rules for the dialog",
     )
 
 
@@ -56,7 +56,7 @@ class StartRequest(BaseModel):
 
 
 class InterventionRequest(BaseModel):
-    """Der Nutzer kann optional eingreifen."""
+    """The user can optionally intervene."""
     message: str
 
 
@@ -68,7 +68,7 @@ class DialogState(BaseModel):
 
 
 class TurnEvent(BaseModel):
-    """SSE-Event für einen einzelnen Turn."""
+    """SSE event for a single turn."""
     turn: int
     provider: str
     role_label: str

@@ -1,10 +1,10 @@
 /* ===========================
-   AI-Discuss – Frontend-Logik
+   AI-Discuss – Frontend Logic
    =========================== */
 
 const API_BASE = window.location.origin;
 
-// DOM-Elemente
+// DOM elements
 const setupPanel      = document.getElementById("setup-panel");
 const dialogPanel     = document.getElementById("dialog-panel");
 const dialogTopic     = document.getElementById("dialog-topic");
@@ -23,7 +23,7 @@ let currentMsgEl      = null;
 let currentContentEl  = null;
 
 // ---------------------------------------------------------------------------
-// Dialog starten
+// Start dialog
 // ---------------------------------------------------------------------------
 
 btnStart.addEventListener("click", async () => {
@@ -31,7 +31,7 @@ btnStart.addEventListener("click", async () => {
     if (!config) return;
 
     btnStart.disabled = true;
-    btnStart.textContent = "Wird gestartet…";
+    btnStart.textContent = "Starting…";
 
     try {
         const res = await fetch(`${API_BASE}/api/dialog/start`, {
@@ -42,7 +42,7 @@ btnStart.addEventListener("click", async () => {
 
         if (!res.ok) {
             const err = await res.json();
-            alert("Fehler: " + (err.detail || JSON.stringify(err)));
+            alert("Error: " + (err.detail || JSON.stringify(err)));
             return;
         }
 
@@ -50,20 +50,20 @@ btnStart.addEventListener("click", async () => {
         currentSessionId = session_id;
         maxTurns = config.max_turns;
 
-        // UI umschalten
+        // Switch UI
         setupPanel.classList.add("hidden");
         dialogPanel.classList.remove("hidden");
         dialogTopic.textContent = `💬 ${config.topic}`;
         turnCounter.textContent = `Turn 0/${maxTurns}`;
         messagesEl.innerHTML = "";
 
-        // SSE-Stream starten
+        // Start SSE stream
         startStream(session_id);
     } catch (e) {
-        alert("Verbindungsfehler: " + e.message);
+        alert("Connection error: " + e.message);
     } finally {
         btnStart.disabled = false;
-        btnStart.textContent = "Dialog starten ▶";
+        btnStart.textContent = "Start Dialog ▶";
     }
 });
 
@@ -80,7 +80,7 @@ function startStream(sessionId) {
 
         turnCounter.textContent = `Turn ${turn + 1}/${maxTurns}`;
 
-        // Neue Nachrichten-Bubble
+        // New message bubble
         const msgEl = document.createElement("div");
         msgEl.className = `message provider-${provider}`;
         msgEl.innerHTML = `
@@ -102,7 +102,7 @@ function startStream(sessionId) {
         const data = JSON.parse(e.data);
         if (!currentContentEl) return;
 
-        // Typing-Indicator entfernen beim ersten Token
+        // Remove typing indicator on first token
         const indicator = currentContentEl.querySelector(".typing-indicator");
         if (indicator) indicator.remove();
 
@@ -112,7 +112,7 @@ function startStream(sessionId) {
 
     eventSource.addEventListener("turn_end", (e) => {
         const data = JSON.parse(e.data);
-        // Inhalt als formatiertes HTML rendern
+        // Render content as formatted HTML
         if (currentContentEl) {
             currentContentEl.innerHTML = formatContent(data.content);
         }
@@ -125,14 +125,14 @@ function startStream(sessionId) {
         const data = JSON.parse(e.data);
         const statusEl = document.createElement("div");
         statusEl.className = "status-message finished";
-        statusEl.textContent = `✓ Dialog beendet nach ${data.total_turns} Zügen`;
+        statusEl.textContent = `✓ Dialog finished after ${data.total_turns} turns`;
         messagesEl.appendChild(statusEl);
         scrollToBottom();
         closeStream();
     });
 
     eventSource.onerror = () => {
-        // Stream wurde geschlossen oder Fehler
+        // Stream was closed or error occurred
         closeStream();
     };
 }
@@ -145,7 +145,7 @@ function closeStream() {
 }
 
 // ---------------------------------------------------------------------------
-// Nutzer-Eingriff
+// User intervention
 // ---------------------------------------------------------------------------
 
 btnIntervene.addEventListener("click", sendIntervention);
@@ -159,13 +159,13 @@ async function sendIntervention() {
 
     interventionInp.value = "";
 
-    // Sofort lokal anzeigen
+    // Show locally immediately
     const msgEl = document.createElement("div");
     msgEl.className = "message provider-moderator";
     msgEl.innerHTML = `
         <div class="message-header">
-            <span class="message-role">Moderator (Du)</span>
-            <span class="message-provider">NUTZER</span>
+            <span class="message-role">Moderator (You)</span>
+            <span class="message-provider">USER</span>
         </div>
         <div class="message-content">${escapeHtml(message)}</div>
     `;
@@ -179,12 +179,12 @@ async function sendIntervention() {
             body: JSON.stringify({ message }),
         });
     } catch (e) {
-        console.error("Intervention fehlgeschlagen:", e);
+        console.error("Intervention failed:", e);
     }
 }
 
 // ---------------------------------------------------------------------------
-// Steuerung
+// Controls
 // ---------------------------------------------------------------------------
 
 btnStop.addEventListener("click", () => {
@@ -194,7 +194,7 @@ btnStop.addEventListener("click", () => {
     }
     const statusEl = document.createElement("div");
     statusEl.className = "status-message";
-    statusEl.textContent = "⏹ Dialog vom Nutzer abgebrochen";
+    statusEl.textContent = "⏹ Dialog stopped by user";
     messagesEl.appendChild(statusEl);
 });
 
@@ -209,13 +209,13 @@ btnNew.addEventListener("click", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Hilfsfunktionen
+// Helper functions
 // ---------------------------------------------------------------------------
 
 function buildConfig() {
     const topic = document.getElementById("topic").value.trim();
     if (!topic) {
-        alert("Bitte gib ein Thema ein.");
+        alert("Please enter a topic.");
         return null;
     }
 
@@ -243,7 +243,7 @@ function escapeHtml(text) {
 }
 
 function formatContent(text) {
-    // Einfache Absatzformatierung
+    // Simple paragraph formatting
     return text
         .split(/\n{2,}/)
         .map((p) => `<p>${escapeHtml(p.trim())}</p>`)

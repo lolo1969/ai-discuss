@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI-Discuss – KI-Dialog</title>
+    <title>AI-Discuss – AI Dialog</title>
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -11,21 +11,21 @@
         <!-- ============ SETUP-PANEL ============ -->
         <section id="setup-panel" class="panel">
             <h1>🤖 AI-Discuss</h1>
-            <p class="subtitle">Zwei KI-Modelle. Ein Thema. Ein Dialog.</p>
+            <p class="subtitle">Two AI models. One topic. One dialog.</p>
 
             <div class="form-group">
-                <label for="topic">Diskussionsthema</label>
+                <label for="topic">Discussion Topic</label>
                 <input
                     id="topic"
                     type="text"
-                    placeholder="z. B. Klimawandel, Künstliche Intelligenz, Bildungssysteme…"
+                    placeholder="e.g. Climate change, Artificial intelligence, Education systems…"
                 />
             </div>
 
             <div class="participants-grid">
-                <!-- Teilnehmer A -->
+                <!-- Participant A -->
                 <fieldset class="participant-card participant-a">
-                    <legend>Teilnehmer A</legend>
+                    <legend>Participant A</legend>
                     <div class="form-group">
                         <label for="prov-a">Provider</label>
                         <select id="prov-a">
@@ -34,18 +34,18 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="role-a">Rolle / Perspektive (optional)</label>
-                        <input id="role-a" type="text" placeholder="z. B. Optimist, Kritiker – leer lassen für freie Diskussion" />
+                        <label for="role-a">Role / Perspective (optional)</label>
+                        <input id="role-a" type="text" placeholder="e.g. Optimist, Critic – leave empty for open discussion" />
                     </div>
                     <div class="form-group">
-                        <label for="sysprompt-a">System-Prompt (optional)</label>
-                        <textarea id="sysprompt-a" rows="2" placeholder="Zusätzliche Anweisungen…"></textarea>
+                        <label for="sysprompt-a">System Prompt (optional)</label>
+                        <textarea id="sysprompt-a" rows="2" placeholder="Additional instructions…"></textarea>
                     </div>
                 </fieldset>
 
-                <!-- Teilnehmer B -->
+                <!-- Participant B -->
                 <fieldset class="participant-card participant-b">
-                    <legend>Teilnehmer B</legend>
+                    <legend>Participant B</legend>
                     <div class="form-group">
                         <label for="prov-b">Provider</label>
                         <select id="prov-b">
@@ -54,28 +54,28 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="role-b">Rolle / Perspektive (optional)</label>
-                        <input id="role-b" type="text" placeholder="z. B. Skeptiker, Befürworter – leer lassen für freie Diskussion" />
+                        <label for="role-b">Role / Perspective (optional)</label>
+                        <input id="role-b" type="text" placeholder="e.g. Skeptic, Advocate – leave empty for open discussion" />
                     </div>
                     <div class="form-group">
-                        <label for="sysprompt-b">System-Prompt (optional)</label>
-                        <textarea id="sysprompt-b" rows="2" placeholder="Zusätzliche Anweisungen…"></textarea>
+                        <label for="sysprompt-b">System Prompt (optional)</label>
+                        <textarea id="sysprompt-b" rows="2" placeholder="Additional instructions…"></textarea>
                     </div>
                 </fieldset>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="max-turns">Anzahl Züge (gesamt)</label>
+                    <label for="max-turns">Number of Turns (total)</label>
                     <input id="max-turns" type="number" min="2" max="50" value="6" />
                 </div>
                 <div class="form-group" style="flex:2">
-                    <label for="rules">Zusätzliche Regeln (optional)</label>
-                    <input id="rules" type="text" placeholder="z. B. Belege mit Quellen, bleibe sachlich…" />
+                    <label for="rules">Additional Rules (optional)</label>
+                    <input id="rules" type="text" placeholder="e.g. Cite sources, stay factual…" />
                 </div>
             </div>
 
-            <button id="btn-start" class="btn-primary">Dialog starten ▶</button>
+            <button id="btn-start" class="btn-primary">Start Dialog ▶</button>
         </section>
 
         <!-- ============ DIALOG-PANEL ============ -->
@@ -84,21 +84,21 @@
                 <h2 id="dialog-topic"></h2>
                 <div class="dialog-controls">
                     <span id="turn-counter" class="badge">Turn 0/0</span>
-                    <button id="btn-stop" class="btn-secondary" title="Dialog abbrechen">⏹ Stopp</button>
-                    <button id="btn-new" class="btn-secondary" title="Neuen Dialog starten">🔄 Neu</button>
+                    <button id="btn-stop" class="btn-secondary" title="Stop dialog">⏹ Stop</button>
+                    <button id="btn-new" class="btn-secondary" title="Start new dialog">🔄 New</button>
                 </div>
             </header>
 
             <div id="dialog-messages" class="messages-container"></div>
 
-            <!-- Nutzer-Eingriff -->
+            <!-- User intervention -->
             <div id="intervention-bar" class="intervention-bar">
                 <input
                     id="intervention-input"
                     type="text"
-                    placeholder="Als Moderator eingreifen…"
+                    placeholder="Intervene as moderator…"
                 />
-                <button id="btn-intervene" class="btn-primary btn-small">Senden</button>
+                <button id="btn-intervene" class="btn-primary btn-small">Send</button>
             </div>
         </section>
     </div>

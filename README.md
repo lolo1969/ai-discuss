@@ -1,12 +1,12 @@
-# AI-Discuss – KI-Dialog-Plattform
+# AI-Discuss – AI Dialog Platform
 
-Zwei unterschiedliche KI-Modelle (OpenAI GPT + Anthropic Claude) diskutieren dialogisch über ein vom Nutzer gewähltes Thema. Der Nutzer beobachtet den Dialog in Echtzeit (Token-Streaming) und kann optional als Moderator eingreifen.
+Two different AI models (OpenAI GPT + Anthropic Claude) engage in a turn-based dialog about a user-defined topic. The user observes the conversation in real-time (token streaming) and can optionally intervene as a moderator.
 
-## Architektur
+## Architecture
 
 ```
 Frontend (Vanilla HTML/CSS/JS)
-    ↕ SSE-Stream + REST API
+    ↕ SSE Stream + REST API
 Backend (FastAPI / Python)
     ↕                ↕
 OpenAI API      Anthropic API
@@ -14,17 +14,17 @@ OpenAI API      Anthropic API
 
 ## Features
 
-- **Zwei echte KI-Provider** – OpenAI GPT und Anthropic Claude
-- **Gemeinsamer Gesprächsverlauf** – beide KIs sehen alle bisherigen Beiträge
-- **Turn-basiert** – abwechselnde Antworten mit Echtzeit-Streaming (SSE)
-- **Feste Rollen** – jede KI spricht aus einer vorgegebenen Perspektive
-- **Konfigurierbar** – Thema, Rollen, Regeln und Anzahl der Züge
-- **Nutzer als Moderator** – optional während des Dialogs eingreifen
-- **Stop-Kriterium** – Dialog endet nach definierter Anzahl von Turns
+- **Two real AI providers** – OpenAI GPT and Anthropic Claude
+- **Shared conversation history** – both AIs see all previous messages
+- **Turn-based** – alternating responses with real-time streaming (SSE)
+- **Configurable roles** – each AI can speak from a given perspective
+- **Customizable** – topic, roles, rules, and number of turns
+- **User as moderator** – optionally intervene during the dialog
+- **Stop criterion** – dialog ends after a defined number of turns
 
-## Schnellstart
+## Quick Start
 
-### 1. Abhängigkeiten installieren
+### 1. Install dependencies
 
 ```bash
 cd AI-Discuss
@@ -33,60 +33,60 @@ source .venv/bin/activate      # macOS/Linux
 pip install -r requirements.txt
 ```
 
-### 2. API-Keys konfigurieren
+### 2. Configure API keys
 
 ```bash
 cp .env.example .env
-# Dann .env bearbeiten und die API-Keys eintragen:
+# Edit .env and add your API keys:
 #   OPENAI_API_KEY=sk-...
 #   ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-### 3. Server starten
+### 3. Start the server
 
 ```bash
 uvicorn backend.app:app --reload --port 8000
 ```
 
-### 4. Öffnen
+### 4. Open in browser
 
-Im Browser: **http://localhost:8000**
+Navigate to: **http://localhost:8000**
 
-## API-Endpunkte
+## API Endpoints
 
-| Methode  | Pfad                                | Beschreibung                      |
+| Method   | Path                                | Description                       |
 |----------|-------------------------------------|-----------------------------------|
-| `POST`   | `/api/dialog/start`                 | Neuen Dialog starten              |
-| `GET`    | `/api/dialog/{id}/stream`           | SSE-Stream für den Dialog         |
-| `POST`   | `/api/dialog/{id}/intervene`        | Nutzer-Eingriff (Moderator)       |
-| `GET`    | `/api/dialog/{id}/state`            | Aktuellen Zustand abrufen         |
-| `DELETE` | `/api/dialog/{id}`                  | Session löschen                   |
+| `POST`   | `/api/dialog/start`                 | Start a new dialog                |
+| `GET`    | `/api/dialog/{id}/stream`           | SSE stream for the dialog         |
+| `POST`   | `/api/dialog/{id}/intervene`        | User intervention (moderator)     |
+| `GET`    | `/api/dialog/{id}/state`            | Get current dialog state          |
+| `DELETE` | `/api/dialog/{id}`                  | Delete a session                  |
 
-## Konfiguration (Umgebungsvariablen)
+## Configuration (Environment Variables)
 
-| Variable           | Standard                         | Beschreibung                    |
+| Variable           | Default                          | Description                     |
 |--------------------|----------------------------------|---------------------------------|
-| `OPENAI_API_KEY`   | –                                | OpenAI API-Schlüssel            |
-| `ANTHROPIC_API_KEY` | –                               | Anthropic API-Schlüssel         |
-| `OPENAI_MODEL`     | `gpt-4o`                        | OpenAI-Modell                   |
-| `ANTHROPIC_MODEL`  | `claude-sonnet-4-20250514` | Anthropic-Modell                |
-| `MAX_TOKENS`       | `1024`                           | Max. Tokens pro Antwort         |
+| `OPENAI_API_KEY`   | –                                | OpenAI API key                  |
+| `ANTHROPIC_API_KEY` | –                               | Anthropic API key               |
+| `OPENAI_MODEL`     | `gpt-4o`                        | OpenAI model                    |
+| `ANTHROPIC_MODEL`  | `claude-sonnet-4-20250514` | Anthropic model                 |
+| `MAX_TOKENS`       | `1024`                           | Max tokens per response         |
 
-## Projektstruktur
+## Project Structure
 
 ```
 AI-Discuss/
 ├── backend/
 │   ├── __init__.py
-│   ├── app.py          # FastAPI-Anwendung + Routen
-│   ├── config.py       # Konfiguration (.env)
-│   ├── engine.py       # Dialog-Engine (Orchestrierung)
-│   ├── providers.py    # KI-Provider (OpenAI, Anthropic)
-│   └── schemas.py      # Pydantic-Modelle
+│   ├── app.py          # FastAPI application + routes
+│   ├── config.py       # Configuration (.env)
+│   ├── engine.py       # Dialog engine (orchestration)
+│   ├── providers.py    # AI providers (OpenAI, Anthropic)
+│   └── schemas.py      # Pydantic models
 ├── frontend/
-│   ├── index.html      # Haupt-HTML
-│   ├── style.css       # Dark-Mode Styling
-│   └── app.js          # Frontend-Logik (SSE, UI)
+│   ├── index.html      # Main HTML
+│   ├── style.css       # Dark-mode styling
+│   └── app.js          # Frontend logic (SSE, UI)
 ├── .env.example
 ├── .gitignore
 ├── requirements.txt

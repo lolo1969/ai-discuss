@@ -1,4 +1,4 @@
-"""Dialog-Engine – verwaltet den Zustand und orchestriert die Turns."""
+"""Dialog engine – manages state and orchestrates turns."""
 
 from __future__ import annotations
 
@@ -17,37 +17,37 @@ from backend.schemas import (
 
 
 class DialogEngine:
-    """Hält den gesamten Dialogzustand und produziert SSE-Events."""
+    """Holds the entire dialog state and produces SSE events."""
 
     def __init__(self, config: DialogConfig) -> None:
         self.state = DialogState(config=config)
         self._participants = [config.participant_a, config.participant_b]
-        # Standardlabels setzen wenn keine Rolle definiert
+        # Set default labels if no role is defined
         provider_labels = {"openai": "GPT", "anthropic": "Claude"}
         for p in self._participants:
             if not p.role_label:
                 p.role_label = provider_labels.get(p.provider.value, p.provider.value)
-        # System-Prompts mit Thema + Regeln anreichern
+        # Enrich system prompts with topic + rules
         for p in self._participants:
             p.system_prompt = self._build_system_prompt(p)
 
-    # ----- Hilfsmethoden -----
+    # ----- Helper methods -----
 
     def _build_system_prompt(self, participant: Participant) -> str:
         cfg = self.state.config
-        base = f"Du nimmst an einem Dialog zum Thema \"{cfg.topic}\" teil.\n"
+        base = f"You are participating in a dialog about \"{cfg.topic}\".\n"
         if participant.role_label:
-            base += f"Deine Rolle / Perspektive: {participant.role_label}.\n"
+            base += f"Your role / perspective: {participant.role_label}.\n"
         if cfg.rules:
-            base += f"Zusätzliche Regeln: {cfg.rules}\n"
+            base += f"Additional rules: {cfg.rules}\n"
         base += (
-            "Beziehe dich auf die vorherigen Beiträge deines Gesprächspartners. "
-            "Halte dich kurz und prägnant (max. 3-4 Absätze)."
+            "Refer to the previous contributions of your conversation partner. "
+            "Keep your responses concise (max 3-4 paragraphs)."
         )
         if participant.role_label:
-            base += " Antworte aus deiner zugewiesenen Perspektive."
+            base += " Respond from your assigned perspective."
         if participant.system_prompt:
-            base += f"\n\nZusätzlicher Kontext: {participant.system_prompt}"
+            base += f"\n\nAdditional context: {participant.system_prompt}"
         return base
 
     @property
@@ -59,15 +59,15 @@ class DialogEngine:
     def finished(self) -> bool:
         return self.state.current_turn >= self.state.config.max_turns
 
-    # ----- Haupt-Loop -----
+    # ----- Main loop -----
 
     async def run_dialog(self) -> AsyncIterator[str]:
-        """Generator, der SSE-formatierte JSON-Strings liefert."""
+        """Generator that yields SSE-formatted JSON strings."""
         while not self.finished:
             participant = self.current_participant
             content_parts: list[str] = []
 
-            # SSE: Turn-Start
+            # SSE: Turn start
             yield self._sse_event("turn_start", {
                 "turn": self.state.current_turn,
                 "provider": participant.provider.value,
@@ -80,7 +80,7 @@ class DialogEngine:
                 history=self.state.messages,
             ):
                 content_parts.append(token)
-                # SSE: Token-Stream
+                # SSE: Token stream
                 yield self._sse_event("token", {
                     "turn": self.state.current_turn,
                     "token": token,
@@ -96,7 +96,7 @@ class DialogEngine:
             )
             self.state.current_turn += 1
 
-            # SSE: Turn-Ende
+            # SSE: Turn end
             yield self._sse_event("turn_end", {
                 "turn": self.state.current_turn - 1,
                 "provider": participant.provider.value,
@@ -105,18 +105,18 @@ class DialogEngine:
                 "finished": self.finished,
             })
 
-            # Kleine Pause zwischen Turns
+            # Short pause between turns
             await asyncio.sleep(0.3)
 
-        # SSE: Dialog komplett
+        # SSE: Dialog complete
         yield self._sse_event("dialog_end", {"total_turns": self.state.current_turn})
 
     async def inject_user_message(self, message: str) -> None:
-        """Nutzer-Eingriff: Nachricht wird dem Verlauf hinzugefügt."""
+        """User intervention: message is added to the history."""
         self.state.messages.append(
             DialogMessage(
-                provider=self.current_participant.provider,  # wird wie Kontext behandelt
-                role_label="Moderator (Nutzer)",
+                provider=self.current_participant.provider,  # treated as context
+                role_label="Moderator (User)",
                 content=message,
             )
         )
