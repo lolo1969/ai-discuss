@@ -64,10 +64,13 @@ async def intervene(session_id: str, req: InterventionRequest):
     engine = _sessions.get(session_id)
     if not engine:
         raise HTTPException(404, "Session not found")
-    if engine.finished:
-        raise HTTPException(400, "Dialog has already ended")
     await engine.inject_user_message(req.message)
-    return {"status": "ok", "message": "Message was injected."}
+    # If the dialog has ended, extend it so both AIs can respond
+    continued = False
+    if engine.finished:
+        engine.state.config.max_turns += 2
+        continued = True
+    return {"status": "ok", "continued": continued, "max_turns": engine.state.config.max_turns}
 
 
 @app.post("/api/dialog/{session_id}/pause")

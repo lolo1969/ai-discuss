@@ -182,11 +182,17 @@ async function sendIntervention() {
     scrollToBottom();
 
     try {
-        await fetch(`${API_BASE}/api/dialog/${currentSessionId}/intervene`, {
+        const res = await fetch(`${API_BASE}/api/dialog/${currentSessionId}/intervene`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message }),
         });
+        const data = await res.json();
+        // If dialog was finished, the backend extended it – restart SSE stream
+        if (data.continued) {
+            maxTurns = data.max_turns;
+            startStream(currentSessionId);
+        }
     } catch (e) {
         console.error("Intervention failed:", e);
     }
