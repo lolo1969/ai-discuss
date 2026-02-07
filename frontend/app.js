@@ -239,7 +239,7 @@ function buildConfig() {
             system_prompt: document.getElementById("sysprompt-b").value.trim(),
         },
         max_turns: parseInt(document.getElementById("max-turns").value, 10) || 6,
-        token_delay_ms: parseInt(document.getElementById("token-delay").value, 10) || 30,
+        token_delay_ms: parseInt(document.getElementById("token-delay").value, 10) || 80,
         rules: document.getElementById("rules").value.trim(),
     };
 }
