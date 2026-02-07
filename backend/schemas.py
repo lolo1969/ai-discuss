@@ -24,6 +24,7 @@ class DialogMessage(BaseModel):
     provider: Provider
     role_label: str  # e.g. "Optimist", "Skeptic"
     content: str
+    is_moderator: bool = False  # True for user/moderator messages
 
 
 class Participant(BaseModel):

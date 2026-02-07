@@ -27,9 +27,13 @@ def _build_openai_messages(
     if system_prompt:
         msgs.append({"role": Role.SYSTEM.value, "content": system_prompt})
     for m in history:
-        # Own messages = assistant, other's = user
-        role = Role.ASSISTANT.value if m.provider == current_provider else Role.USER.value
-        msgs.append({"role": role, "content": f"[{m.role_label}]: {m.content}"})
+        # Moderator messages are always "user" role so the AI responds to them
+        if m.is_moderator:
+            msgs.append({"role": Role.USER.value, "content": f"[{m.role_label}]: {m.content}"})
+        else:
+            # Own messages = assistant, other's = user
+            role = Role.ASSISTANT.value if m.provider == current_provider else Role.USER.value
+            msgs.append({"role": role, "content": f"[{m.role_label}]: {m.content}"})
     return msgs
 
 
@@ -40,10 +44,13 @@ def _build_anthropic_messages(
     """Build the Anthropic-compatible message list."""
     msgs: list[dict] = []
     for m in history:
-        role = "assistant" if m.provider == current_provider else "user"
-        msgs.append({"role": role, "content": f"[{m.role_label}]: {m.content}"})
+        # Moderator messages are always "user" role so the AI responds to them
+        if m.is_moderator:
+            msgs.append({"role": "user", "content": f"[{m.role_label}]: {m.content}"})
+        else:
+            role = "assistant" if m.provider == current_provider else "user"
+            msgs.append({"role": role, "content": f"[{m.role_label}]: {m.content}"})
     # Anthropic requires the first message to have role=user.
-    # If the list is empty or starts with assistant, insert a placeholder.
     if not msgs or msgs[0]["role"] == "assistant":
         msgs.insert(0, {"role": "user", "content": "(Start of dialog)"})
     return msgs

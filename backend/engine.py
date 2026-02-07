@@ -46,7 +46,8 @@ class DialogEngine:
             base += f"Additional rules: {cfg.rules}\n"
         base += (
             "Refer to the previous contributions of your conversation partner. "
-            "Keep your responses concise (max 3-4 paragraphs)."
+            "Keep your responses concise (max 3-4 paragraphs). "
+            "When the Moderator (User) sends a message, you MUST address their point or question directly before continuing the discussion."
         )
         if participant.role_label:
             base += " Respond from your assigned perspective."
@@ -138,14 +139,29 @@ class DialogEngine:
         return self._paused
 
     async def inject_user_message(self, message: str) -> None:
-        """User intervention: message is added to the history."""
+        """User intervention: message is added to the history.
+        If the user addresses a specific participant by name/label,
+        adjust the turn order so that participant responds next."""
         self.state.messages.append(
             DialogMessage(
-                provider=self.current_participant.provider,  # treated as context
+                provider=self.current_participant.provider,
                 role_label="Moderator (User)",
                 content=message,
+                is_moderator=True,
             )
         )
+        # Check if user addressed a specific participant
+        msg_lower = message.lower()
+        for idx, p in enumerate(self._participants):
+            name = p.role_label.lower()
+            if name and name in msg_lower:
+                # Adjust current_turn so this participant is next
+                desired_parity = idx  # 0 for participant_a, 1 for participant_b
+                if self.state.current_turn % 2 != desired_parity:
+                    self.state.current_turn += 1
+                    # Also bump max_turns to compensate
+                    self.state.config.max_turns += 1
+                break
 
     @staticmethod
     def _sse_event(event_type: str, data: dict) -> str:
